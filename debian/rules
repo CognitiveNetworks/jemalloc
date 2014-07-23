@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+%:
+	dh $@ 
+
+# override_dh_auto_build:
+# 	dh_auto_build -- slib
+	
+override_dh_auto_install:
+ 	dh_install libs/libjemalloc.* /usr/lib/

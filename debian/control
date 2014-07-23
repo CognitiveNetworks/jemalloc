@@ -1,0 +1,12 @@
+Source: jemalloc
+Maintainer: Ivo Vachkov <ivo.vachkov@cognitivenetworks.com>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.5
+Build-Depends: debhelper (>= 9)
+
+Package: libjemalloc
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: This is package for libjemalloc
+ The following package contains libjemalloc used in c-UMP
