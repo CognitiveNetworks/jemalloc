@@ -3,4 +3,10 @@
 	dh $@ 
 
 override_dh_auto_install:
-	dh_install lib/libjemalloc.* /usr/lib/
+	dh_install lib/libjemalloc.* /usr/lib/${DEB_HOST_MULTIARCH}/
+
+override_dh_strip:
+	dh_strip --dbg-package=libjemalloc-dbg
+
+override_dh_makeshlibs:
+	dh_makeshlibs -- -c4

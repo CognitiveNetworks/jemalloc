@@ -1,12 +1,33 @@
-Source: jemalloc
-Maintainer: Ivo Vachkov <ivo.vachkov@cognitivenetworks.com>
-Section: misc
+Source: libjemalloc
+Section: libs
 Priority: optional
-Standards-Version: 3.9.5
-Build-Depends: debhelper (>= 9)
+Maintainer: Ivo Vachkov <ivo.vachkov@cognitivenetworks.com>
+Build-Depends: debhelper (>= 8.1.3)
+Standards-Version: 3.9.6
+Homepage: https://github.com/CognitiveNetworks/jemalloc/
+Vcs-Browser: https://github.com/CognitiveNetworks/jemalloc/
+Vcs-Git: git@github.com:CognitiveNetworks/jemalloc.git
 
 Package: libjemalloc
-Architecture: amd64
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: This is package for libjemalloc
- The following package contains libjemalloc used in c-UMP
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Multi-Arch: no
+Description: system interface for CN Jemalloc usage.
+ Shared library, libjemalloc.
+
+Package: libjemalloc-dev
+Section: libdevel
+Architecture: any
+Depends: libjemalloc (= ${binary:Version}), libc6-dev
+Description: development library and header files for libjemalloc
+ Headers for the libjemalloc library.
+
+Package: libjemalloc-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: libjemalloc (= ${binary:Version}), ${misc:Depends}
+Multi-Arch: no
+Description: debugging symbols for libjemalloc
+ Shared library with debug sybmobs, libjemalloc.
