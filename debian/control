@@ -12,7 +12,6 @@ Package: libjemalloc
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}
-Multi-Arch: same
 Description: system interface for CN Jemalloc usage.
  Shared library, libjemalloc.
 
