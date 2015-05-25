@@ -28,6 +28,5 @@ Section: debug
 Priority: extra
 Architecture: any
 Depends: libjemalloc (= ${binary:Version}), ${misc:Depends}
-Multi-Arch: no
 Description: debugging symbols for libjemalloc
  Shared library with debug sybmobs, libjemalloc.
