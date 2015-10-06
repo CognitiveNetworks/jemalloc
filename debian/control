@@ -8,7 +8,7 @@ Homepage: https://github.com/CognitiveNetworks/jemalloc/
 Vcs-Browser: https://github.com/CognitiveNetworks/jemalloc/
 Vcs-Git: git@github.com:CognitiveNetworks/jemalloc.git
 
-Package: libjemalloc
+Package: libjemalloc1
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}
@@ -18,7 +18,7 @@ Description: system interface for CN Jemalloc usage.
 Package: libjemalloc-dev
 Section: libdevel
 Architecture: any
-Depends: libjemalloc (= ${binary:Version}), libc6-dev
+Depends: libjemalloc1 (= ${binary:Version}), libc6-dev
 Description: development library and header files for libjemalloc
  Headers for the libjemalloc library.
 
@@ -26,6 +26,6 @@ Package: libjemalloc-dbg
 Section: debug
 Priority: extra
 Architecture: any
-Depends: libjemalloc (= ${binary:Version}), ${misc:Depends}
+Depends: libjemalloc1 (= ${binary:Version}), ${misc:Depends}
 Description: debugging symbols for libjemalloc
  Shared library with debug sybmobs, libjemalloc.
