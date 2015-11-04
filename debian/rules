@@ -2,8 +2,6 @@
 %:
 	dh $@ 
 
-override_dh_auto_configure:
-	dh_auto_configure -- --enable-debug --enable-fill
 
 override_dh_auto_install:
 	dh_install lib/libjemalloc.* /usr/lib/${DEB_HOST_MULTIARCH}/
