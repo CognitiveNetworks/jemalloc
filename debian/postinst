@@ -1,0 +1,5 @@
+#!/bin/sh -ex
+
+ln -s /usr/lib/x86_64-linux-gnu/libjemalloc.so.2 /usr/lib/x86_64-linux-gnu/libjemalloc.so.1
+ldconfig 
+
