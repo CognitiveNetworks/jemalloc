@@ -5,7 +5,6 @@ typedef struct tcache_bin_stats_s tcache_bin_stats_t;
 typedef struct malloc_bin_stats_s malloc_bin_stats_t;
 typedef struct malloc_large_stats_s malloc_large_stats_t;
 typedef struct arena_stats_s arena_stats_t;
-typedef struct chunk_stats_s chunk_stats_t;
 
 #endif /* JEMALLOC_H_TYPES */
 /******************************************************************************/
@@ -20,12 +19,6 @@ struct tcache_bin_stats_s {
 };
 
 struct malloc_bin_stats_s {
-	/*
-	 * Current number of bytes allocated, including objects currently
-	 * cached by tcache.
-	 */
-	size_t		allocated;
-
 	/*
 	 * Total number of allocation/deallocation requests served directly by
 	 * the bin.  Note that tcache may allocate an object, then recycle it
@@ -42,31 +35,35 @@ struct malloc_bin_stats_s {
 	 */
 	uint64_t	nrequests;
 
+	/*
+	 * Current number of regions of this size class, including regions
+	 * currently cached by tcache.
+	 */
+	size_t		curregs;
+
 	/* Number of tcache fills from this bin. */
 	uint64_t	nfills;
 
 	/* Number of tcache flushes to this bin. */
 	uint64_t	nflushes;
 
-	/* Total number of runs created for this bin's size class. */
-	uint64_t	nruns;
+	/* Total number of slabs created for this bin's size class. */
+	uint64_t	nslabs;
 
 	/*
-	 * Total number of runs reused by extracting them from the runs tree for
-	 * this bin's size class.
+	 * Total number of slabs reused by extracting them from the slabs heap
+	 * for this bin's size class.
 	 */
-	uint64_t	reruns;
+	uint64_t	reslabs;
 
-	/* Current number of runs in this bin. */
-	size_t		curruns;
+	/* Current number of slabs in this bin. */
+	size_t		curslabs;
 };
 
 struct malloc_large_stats_s {
 	/*
 	 * Total number of allocation/deallocation requests served directly by
-	 * the arena.  Note that tcache may allocate an object, then recycle it
-	 * many times, resulting many increments to nrequests, but only one
-	 * each to nmalloc and ndalloc.
+	 * the arena.
 	 */
 	uint64_t	nmalloc;
 	uint64_t	ndalloc;
@@ -78,13 +75,21 @@ struct malloc_large_stats_s {
 	 */
 	uint64_t	nrequests;
 
-	/* Current number of runs of this size class. */
-	size_t		curruns;
+	/* Current number of allocations of this size class. */
+	size_t		curlextents;
 };
 
 struct arena_stats_s {
 	/* Number of bytes currently mapped. */
 	size_t		mapped;
+
+	/*
+	 * Number of bytes currently retained as a side effect of munmap() being
+	 * disabled/bypassed.  Retained bytes are technically mapped (though
+	 * always decommitted or purged), but they are excluded from the mapped
+	 * statistic (above).
+	 */
+	size_t		retained;
 
 	/*
 	 * Total number of purge sweeps, total number of madvise calls made,
@@ -95,34 +100,16 @@ struct arena_stats_s {
 	uint64_t	nmadvise;
 	uint64_t	purged;
 
-	/* Per-size-category statistics. */
+	/* Number of bytes currently allocated for internal metadata. */
+	size_t		metadata; /* Protected via atomic_*_zu(). */
+
 	size_t		allocated_large;
 	uint64_t	nmalloc_large;
 	uint64_t	ndalloc_large;
 	uint64_t	nrequests_large;
 
-	/*
-	 * One element for each possible size class, including sizes that
-	 * overlap with bin size classes.  This is necessary because ipalloc()
-	 * sometimes has to use such large objects in order to assure proper
-	 * alignment.
-	 */
-	malloc_large_stats_t	*lstats;
-};
-
-struct chunk_stats_s {
-	/* Number of chunks that were allocated. */
-	uint64_t	nchunks;
-
-	/* High-water mark for number of chunks allocated. */
-	size_t		highchunks;
-
-	/*
-	 * Current number of chunks allocated.  This value isn't maintained for
-	 * any other purpose, so keep track of it in order to be able to set
-	 * highchunks.
-	 */
-	size_t		curchunks;
+	/* One element for each large size class. */
+	malloc_large_stats_t	lstats[NSIZES - NBINS];
 };
 
 #endif /* JEMALLOC_H_STRUCTS */
@@ -131,43 +118,12 @@ struct chunk_stats_s {
 
 extern bool	opt_stats_print;
 
-extern size_t	stats_cactive;
-
 void	stats_print(void (*write)(void *, const char *), void *cbopaque,
     const char *opts);
 
 #endif /* JEMALLOC_H_EXTERNS */
 /******************************************************************************/
 #ifdef JEMALLOC_H_INLINES
-
-#ifndef JEMALLOC_ENABLE_INLINE
-size_t	stats_cactive_get(void);
-void	stats_cactive_add(size_t size);
-void	stats_cactive_sub(size_t size);
-#endif
-
-#if (defined(JEMALLOC_ENABLE_INLINE) || defined(JEMALLOC_STATS_C_))
-JEMALLOC_INLINE size_t
-stats_cactive_get(void)
-{
-
-	return (atomic_read_z(&stats_cactive));
-}
-
-JEMALLOC_INLINE void
-stats_cactive_add(size_t size)
-{
-
-	atomic_add_z(&stats_cactive, size);
-}
-
-JEMALLOC_INLINE void
-stats_cactive_sub(size_t size)
-{
-
-	atomic_sub_z(&stats_cactive, size);
-}
-#endif
 
 #endif /* JEMALLOC_H_INLINES */
 /******************************************************************************/
